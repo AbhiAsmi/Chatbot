@@ -1,64 +1,61 @@
 const input = document.querySelector('#input');
 const chatContainer = document.querySelector('#chat-container');
 const askBtn = document.querySelector('#ask');
-
 const threadId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
 
 input?.addEventListener('keyup', handleEnter);
 askBtn?.addEventListener('click', handleAsk);
-
 const loading = document.createElement('div');
-loading.className = 'my-6 animate-pulse';
+loading.className = 'loading';
 loading.textContent = 'Thinking...';
 
 async function generate(text) {
     const msg = document.createElement('div');
-    msg.className = `my-6 bg-neutral-800 p-3 rounded-xl ml-auto max-w-fit`;
+    msg.className = 'my-message';
     msg.textContent = text;
     chatContainer?.appendChild(msg);
     input.value = '';
     chatContainer?.appendChild(loading);
     const assistantMessage = await callServer(text);
     const assistantMsgElem = document.createElement('div');
-    assistantMsgElem.className = `max-w-fit`;
+    assistantMsgElem.className = 'bot-message';
     assistantMsgElem.textContent = assistantMessage;
     loading.remove();
     chatContainer?.appendChild(assistantMsgElem);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
 async function callServer(inputText) {
-    const response = await fetch('http://localhost:3000/chat', {
-        method: 'POST',
-        headers: {
-            'content-type': 'application/json',
-        },
-        body: JSON.stringify({ threadId: threadId, message: inputText }),
-    });
+    try {
+        const response = await fetch('https://chatbot-svg4.onrender.com/chat', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({ threadId: threadId, message: inputText }),
+        });
 
-    if (!response.ok) {
-        throw new Error('Error generating the response.');
+        if (!response.ok) {
+            return "⚠️ Server error!";
+        }
+
+        const result = await response.json();
+        return result.message;
+    } catch (err) {
+        return "⚠️ Unable to reach the server!";
     }
-
-    const result = await response.json();
-    return result.message;
 }
 
-async function handleAsk(e) {
+async function handleAsk() {
     const text = input?.value.trim();
-    if (!text) {
-        return;
-    }
-
+    if (!text) return;
     await generate(text);
 }
 
 async function handleEnter(e) {
     if (e.key === 'Enter') {
         const text = input?.value.trim();
-        if (!text) {
-            return;
-        }
-
+        if (!text) return;
         await generate(text);
     }
 }
