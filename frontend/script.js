@@ -27,13 +27,14 @@ async function generate(text) {
 
 async function callServer(inputText) {
     try {
-        const response = await fetch('https://chatbot-svg4.onrender.com/chat', {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({ threadId: threadId, message: inputText }),
-        });
+       const response = await fetch('https://chatbot-svg4.onrender.com/chat', {
+    method: 'POST',
+    headers: {
+        'content-type': 'application/json',
+    },
+    body: JSON.stringify({ threadId: threadId, message: inputText }),
+});
+
 
         if (!response.ok) {
             return "⚠️ Server error!";
